@@ -4,10 +4,10 @@
 // - ネットワークが遅い／無いときはキャッシュから即表示
 // - 同じ github.io 上の他アプリのキャッシュには触れない（このアプリ専用の接頭辞だけ管理）
 const PREFIX = 'eiken1-tango-';
-const CACHE = PREFIX + 'v1';   // DATA（Unit）を追加・変更したら数字を上げる（v2, v3 …）
+const CACHE = PREFIX + 'v14';   // DATA（Unit）を追加・変更したら数字を上げる（v2, v3 …）
 const INDEX = new URL('index.html', self.registration.scope).href;
 // ▼ Unitを追加したら、ここに 'data/unitN.js' を足す（足し忘れると、そのUnitはオフラインで読み込めない）
-const DATA = ['data/unit1.js'];
+const DATA = ['data/unit1.js','data/unit2.js','data/unit3.js','data/unit4.js','data/unit5.js','data/unit6.js','data/unit7.js','data/unit8.js','data/unit9.js','data/unit10.js','data/unit11.js','data/unit12.js','data/unit13.js','data/unit14.js','data/unit15.js','data/unit16.js','data/unit17.js','data/unit18.js','data/unit19.js','data/unit20.js'];
 const REQUIRED = ['index.html'].concat(DATA);
 const OPTIONAL = ['./', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-512-maskable.png'];
 const NET_TIMEOUT = 3000;      // この時間(ms)返事が無ければキャッシュを先に出す
