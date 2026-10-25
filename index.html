@@ -305,9 +305,32 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 <script src="data/unit18.js"></script>
 <script src="data/unit19.js"></script>
 <script src="data/unit20.js"></script>
+<script src="data/unit21.js"></script>
+<script src="data/unit22.js"></script>
+<script src="data/unit23.js"></script>
+<script src="data/unit24.js"></script>
+<script src="data/unit25.js"></script>
+<script src="data/unit26.js"></script>
+<script src="data/unit27.js"></script>
+<script src="data/unit28.js"></script>
+<script src="data/unit29.js"></script>
+<script src="data/unit30.js"></script>
+<script src="data/unit31.js"></script>
+<script src="data/unit32.js"></script>
+<script src="data/unit33.js"></script>
+<script src="data/unit34.js"></script>
+<script src="data/unit35.js"></script>
+<script src="data/unit36.js"></script>
+<script src="data/unit37.js"></script>
+<script src="data/unit38.js"></script>
+<script src="data/unit39.js"></script>
 <script>
 /* ============ 単語データ（data/unitN.js から読み込み） ============ */
-const UNITS_TOTAL = 20;                       // 全Unit数（予定）。Unitが増えたらここを変更
+const EIKEN_UNITS = 20;                       // 英検1級のUnit数（Unit 1〜20）
+const TOEIC_UNITS = 19;                       // TOEIC単語のUnit数（内部番号は21〜。表示は「TOEIC 1」〜）。増減したらここを変更
+const UNITS_TOTAL = EIKEN_UNITS + TOEIC_UNITS; // 全Unit数（39：全Unit収録済み）
+function unitLabel(u){ return u>EIKEN_UNITS ? 'TOEIC '+(u-EIKEN_UNITS) : 'Unit '+u; }
+function unitNumLabel(u){ return u>EIKEN_UNITS ? 'TOEIC '+(u-EIKEN_UNITS) : String(u); }
 const POS_LABEL = {n:'名詞', v:'動詞', a:'形容詞', adv:'副詞', prep:'前置詞', conj:'接続詞', idm:'熟語'};
 const POS_S = {n:'名', v:'動', a:'形', adv:'副', prep:'前', conj:'接', idm:'熟'};
 const POS_ORDER = ['n','v','a','adv','prep','conj','idm'];
@@ -320,7 +343,7 @@ const UNIT_AVAIL = [];
     D[u].forEach(r=>{
       const multi = r.s.length>1;
       WORDS.push({
-        no: u*1000 + r.n, unit:u, bn:r.n, pos:r.p,
+        no: (u>EIKEN_UNITS ? 100000+(u-EIKEN_UNITS)*1000 : u*1000) + r.n, unit:u, bn:r.n, pos:r.p,
         ps: POS_ORDER.filter(p=>r.s.some(x=>x[0]===p)),
         e:r.e, ipa:r.i, s:r.s, x:r.x,
         ja: r.s.map(x=> multi ? '（'+POS_S[x[0]]+'）'+x[1] : x[1]).join('　'),
@@ -441,7 +464,7 @@ function renderHome(){
     <div class="hero">
       <div class="eyebrow">Eiken Grade 1 Vocabulary</div>
       <h2>出る順英単熟語１級</h2>
-      <p>収録 ${UNIT_AVAIL.length} Unit・${WORDS.length}語（全${UNITS_TOTAL}Unit予定）</p>
+      <p>収録 ${UNIT_AVAIL.length} Unit・${WORDS.length}語（全${UNITS_TOTAL}Unit）</p>
     </div>
     <div class="menu-grid">
       <div class="menu-card" onclick="nav('fcSetup')">
@@ -488,13 +511,13 @@ function renderHome(){
 function unitChipsHtml(sel, onclickFn){
   return Array.from({length:UNITS_TOTAL},(_,i)=>i+1).map(u=>{
     const dis=!isAvail(u);
-    return `<div class="chip ${sel===u?'active':''} ${dis?'disabled':''}" ${dis?'':`onclick="${onclickFn}(${u})"`}>Unit ${u}${dis?'<small>準備中</small>':''}</div>`;
+    return `<div class="chip ${sel===u?'active':''} ${dis?'disabled':''}" ${dis?'':`onclick="${onclickFn}(${u})"`}>${unitLabel(u)}${dis?'<small>準備中</small>':''}</div>`;
   }).join('');
 }
 function unitNumChipsHtml(sel, onclickFn, minU){
   return Array.from({length:UNITS_TOTAL},(_,i)=>i+1).map(u=>{
     const dis=!isAvail(u) || (minU && u<minU);
-    return `<div class="chip ${sel===u?'active':''} ${dis?'disabled':''}" ${dis?'':`onclick="${onclickFn}(${u})"`}>${u}</div>`;
+    return `<div class="chip ${sel===u?'active':''} ${dis?'disabled':''}" ${dis?'':`onclick="${onclickFn}(${u})"`}>${unitNumLabel(u)}</div>`;
   }).join('');
 }
 
@@ -671,7 +694,7 @@ function renderFcSetup(){
     <div class="setup-block">
       <div class="menu-card" style="padding:14px;" onclick="resumeSession()">
         <div class="ico">↺</div>
-        <div class="tx"><b>前回の続きから再開</b><span>Unit ${store.lastSession.unit} ・ ${store.lastSession.idx+1}/${store.lastSession.deckNos.length}語目</span></div>
+        <div class="tx"><b>前回の続きから再開</b><span>${unitLabel(store.lastSession.unit)} ・ ${store.lastSession.idx+1}/${store.lastSession.deckNos.length}語目</span></div>
       </div>
     </div>` : '';
 
@@ -751,7 +774,7 @@ function resumeSession(){
 
 function renderFcView(){
   const partTxt = fcCfg.part==='all' ? '' : ' '+PART_NAMES[+fcCfg.part];
-  titleEl.textContent = 'Unit '+fcCfg.unit+partTxt+' · '+(fcCfg.pos==='all'?'全品詞':POS_LABEL[fcCfg.pos]);
+  titleEl.textContent = unitLabel(fcCfg.unit)+partTxt+' · '+(fcCfg.pos==='all'?'全品詞':POS_LABEL[fcCfg.pos]);
   if(fcDeck.length===0){
     main.innerHTML = `<div class="deckdone"><div class="big">🎉</div>この条件のカードはありません。<br>（すべて覚えたセットに入っているか、条件に合う単語がありません）
     <div style="margin-top:16px;"><button class="startbtn" onclick="nav('fcSetup')">設定に戻る</button></div></div>`;
@@ -790,13 +813,13 @@ function renderFcView(){
       <div class="card-outer" id="cardOuter" onclick="cardTap(event)">
         <div class="card-inner">
           <div class="card-face front">
-            <span class="cf-num">Unit ${w.unit} · No.${w.bn}</span>
+            <span class="cf-num">${unitLabel(w.unit)} · No.${w.bn}</span>
             <span class="pos-badge">${posBadge(w)}</span>
             <div class="front-mid">${frontHtml}</div>
             <div class="tapfoot">タップで裏返す ／ 左右の端をタップ・スワイプで前後移動</div>
           </div>
           <div class="card-face back">
-            <span class="cf-num">Unit ${w.unit} · No.${w.bn}</span>
+            <span class="cf-num">${unitLabel(w.unit)} · No.${w.bn}</span>
             ${backHtml}
           </div>
         </div>
@@ -939,7 +962,7 @@ function renderQuizSetup(){
     </div>
     ${hintBlock}
     <div class="setup-block">
-      <h3>出題範囲（Unit ${quizCfg.unitFrom} 〜 Unit ${quizCfg.unitTo}）</h3>
+      <h3>出題範囲（${unitLabel(quizCfg.unitFrom)} 〜 ${unitLabel(quizCfg.unitTo)}）</h3>
       <div class="tabrow">${unitNumChipsHtml(quizCfg.unitFrom,'setQuizFrom')}</div>
       <div style="text-align:center;font-size:12px;color:var(--sub);margin:4px 0;">〜</div>
       <div class="tabrow">${unitNumChipsHtml(quizCfg.unitTo,'setQuizTo',quizCfg.unitFrom)}</div>
@@ -1059,7 +1082,7 @@ function searchWords(q){
 }
 function wordRowHtml(w,withUnit){
   return `<tr>
-    <td class="wl-a"><span class="wl-no">${withUnit?`Unit ${w.unit} ・ `:''}${w.bn}　${posBadge(w)}</span><b>${esc(w.e)}</b> ${spkBtn(w.e)}<br><span class="wl-sub">/${esc(w.ipa)}/</span></td>
+    <td class="wl-a"><span class="wl-no">${withUnit?`${unitLabel(w.unit)} ・ `:''}${w.bn}　${posBadge(w)}</span><b>${esc(w.e)}</b> ${spkBtn(w.e)}<br><span class="wl-sub">/${esc(w.ipa)}/</span></td>
     <td class="wl-b">${esc(w.ja)}${infoHtml(w)}</td>
     <td class="wl-c">${exHtml(w.x[0])}<br><span class="wl-sub">${jaHtml(w.x[0][1])}</span><div class="wl-ex2">${exHtml(w.x[1])}<br><span class="wl-sub">${jaHtml(w.x[1][1])}</span></div></td></tr>`;
 }
@@ -1088,7 +1111,7 @@ function renderWordList(){
     return;
   }
   const ws=unitWords(listUnit);
-  main.innerHTML=head+`<div class="subnote" style="margin:0 0 8px">Unit ${listUnit} ・ ${ws.length}語</div>
+  main.innerHTML=head+`<div class="subnote" style="margin:0 0 8px">${unitLabel(listUnit)} ・ ${ws.length}語</div>
     ${thead}${ws.map(w=>wordRowHtml(w,false)).join('')}</tbody></table>`;
 }
 
@@ -1402,7 +1425,7 @@ function invRangeHtml(){
   return `<div class="setup-block"><h3>方向</h3><div class="tabs">
       <div class="chip ${invCfg.dir==='en2ja'?'active':''}" onclick="invCfg.dir='en2ja';render()">英語 → 日本語</div>
       <div class="chip ${invCfg.dir==='ja2en'?'active':''}" onclick="invCfg.dir='ja2en';render()">日本語 → 英語</div></div></div>
-    <div class="setup-block"><h3>出題範囲（Unit ${invCfg.unitFrom} 〜 Unit ${invCfg.unitTo}）</h3><div class="tabrow">${unitNumChipsHtml(invCfg.unitFrom,'setInvFrom')}</div>
+    <div class="setup-block"><h3>出題範囲（${unitLabel(invCfg.unitFrom)} 〜 ${unitLabel(invCfg.unitTo)}）</h3><div class="tabrow">${unitNumChipsHtml(invCfg.unitFrom,'setInvFrom')}</div>
       <div style="text-align:center;font-size:12px;color:var(--sub);margin:4px 0;">〜</div><div class="tabrow">${unitNumChipsHtml(invCfg.unitTo,'setInvTo',invCfg.unitFrom)}</div></div>`;
 }
 function invToggle(k){
@@ -1428,7 +1451,7 @@ function renderInvSetup(){
 }
 function renderInvRank(){
   titleEl.textContent='インベーダー記録';
-  main.innerHTML=`${invRangeHtml()}<div class="setup-block"><h3>上位10記録（${invCfg.dir==='en2ja'?'英→日':'日→英'}・Unit ${invCfg.unitFrom}〜${invCfg.unitTo}）</h3>${invRankTable(invList(),null)}</div>
+  main.innerHTML=`${invRangeHtml()}<div class="setup-block"><h3>上位10記録（${invCfg.dir==='en2ja'?'英→日':'日→英'}・${unitLabel(invCfg.unitFrom)}〜${unitLabel(invCfg.unitTo)}）</h3>${invRankTable(invList(),null)}</div>
     <button class="startbtn" onclick="nav('invSetup')">この条件でプレイする</button>`;
 }
 function invRankTable(list,hl){
@@ -1560,7 +1583,7 @@ function showInvResult(){
     <div class="setup-block"><h3>出題と回答の振り返り</h3>
       <div style="overflow-x:auto"><table class="iv-tbl"><thead><tr><th>#</th><th>問題</th><th>答え</th><th>選んだ選択肢</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5">撃破・侵略された問題はありませんでした。</td></tr>'}</tbody></table></div>
       <div class="subnote">○ 一発で撃破　△ 間違えた後に撃破　× 侵略された</div></div>
-    <div class="setup-block"><h3>上位10記録（${g.dir==='en2ja'?'英→日':'日→英'}・Unit ${invCfg.unitFrom}〜${invCfg.unitTo}）</h3>${invRankTable(list,entry)}</div>
+    <div class="setup-block"><h3>上位10記録（${g.dir==='en2ja'?'英→日':'日→英'}・${unitLabel(invCfg.unitFrom)}〜${unitLabel(invCfg.unitTo)}）</h3>${invRankTable(list,entry)}</div>
     <button class="startbtn" onclick="startInv()">もう一度挑戦</button>
     <div class="footer-note"><span style="text-decoration:underline;cursor:pointer" onclick="nav('invSetup')">設定に戻る</span></div>`;
   window.scrollTo(0,0);
